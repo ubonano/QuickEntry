@@ -7,13 +7,15 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(QuickEntryApp());
+  runApp(const QuickEntryApp());
 }
 
 class QuickEntryApp extends StatelessWidget {
+  const QuickEntryApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       title: 'QuickEntry',
       home: HomeScreen(),
     );
