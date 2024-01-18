@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class EventFormScreen extends StatefulWidget {
   @override
@@ -14,6 +15,7 @@ class _EventFormScreenState extends State<EventFormScreen> {
   final _availableTicketsController = TextEditingController();
   DateTime? _startDateTime;
   DateTime? _endDateTime;
+  bool _isSubmitting = false;
 
   @override
   Widget build(BuildContext context) {
@@ -27,10 +29,11 @@ class _EventFormScreenState extends State<EventFormScreen> {
             'name': _nameController,
             'description': _descriptionController,
             'address': _addressController,
-            'availableTickets': _availableTicketsController
+            'availableTickets': _availableTicketsController,
           },
           onPickDateTime: _pickDateTime,
-          onSubmit: _validateAndSubmit,
+          onSubmit: _submitForm,
+          isSubmitting: _isSubmitting,
           startDateTime: _startDateTime,
           endDateTime: _endDateTime,
         ),
@@ -71,11 +74,25 @@ class _EventFormScreenState extends State<EventFormScreen> {
     );
   }
 
-  void _validateAndSubmit() {
+  void _submitForm() async {
     if (_formKey.currentState!.validate() && _validateDateTime()) {
-      // Aquí puedes manejar los datos del formulario
-      print(
-          'Form data: ${_nameController.text}, ${_descriptionController.text}, ${_addressController.text}, $_startDateTime, $_endDateTime, ${_availableTicketsController.text}');
+      setState(() => _isSubmitting = true);
+      final eventData = {
+        'name': _nameController.text,
+        'description': _descriptionController.text,
+        'address': _addressController.text,
+        'startDateTime': _startDateTime,
+        'endDateTime': _endDateTime,
+        'availableTickets': int.tryParse(_availableTicketsController.text) ?? 0,
+      };
+
+      try {
+        await FirebaseFirestore.instance.collection('events').add(eventData);
+        _showSuccessSnackbar('Evento creado con éxito.');
+      } catch (e) {
+        _showErrorSnackbar('Error al crear el evento: ${e.toString()}');
+      }
+      setState(() => _isSubmitting = false);
     }
   }
 
@@ -93,6 +110,15 @@ class _EventFormScreenState extends State<EventFormScreen> {
     return true;
   }
 
+  void _showSuccessSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 2)),
+    );
+  }
+
   void _showErrorSnackbar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(message), duration: const Duration(seconds: 2)));
@@ -108,6 +134,7 @@ class EventForm extends StatelessWidget {
     required this.onSubmit,
     this.startDateTime,
     this.endDateTime,
+    required this.isSubmitting,
   }) : super(key: key);
 
   final GlobalKey<FormState> formKey;
@@ -116,6 +143,7 @@ class EventForm extends StatelessWidget {
   final VoidCallback onSubmit;
   final DateTime? startDateTime;
   final DateTime? endDateTime;
+  final bool isSubmitting;
 
   @override
   Widget build(BuildContext context) {
@@ -132,7 +160,7 @@ class EventForm extends StatelessWidget {
                 'Por favor ingrese una dirección'),
             _buildDateTimePicker('Fecha y hora de inicio:', startDateTime,
                 () => onPickDateTime(true)),
-            _buildDateTimePicker('Fecha y hora de finalización:', endDateTime,
+            _buildDateTimePicker('Fecha de finalización:', endDateTime,
                 () => onPickDateTime(false)),
             _buildTextFormField(
               fieldsControllers['availableTickets']!,
@@ -141,7 +169,11 @@ class EventForm extends StatelessWidget {
               keyboardType: TextInputType.number,
               validator: _validateTickets,
             ),
-            ElevatedButton(onPressed: onSubmit, child: const Text('Crear')),
+            SizedBox(height: 20), // Espacio adicional
+            isSubmitting
+                ? CircularProgressIndicator()
+                : ElevatedButton(
+                    onPressed: onSubmit, child: const Text('Crear')),
           ],
         ),
       ),
