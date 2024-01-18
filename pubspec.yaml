@@ -38,6 +38,8 @@ dependencies:
   crypto:
   firebase_core:
   cloud_firestore:
+  intl:
+  get_it:
 
 dev_dependencies:
   flutter_test:
