@@ -105,11 +105,20 @@ class _EventCreateScreenState extends State<EventCreateScreen> {
   }
 
   bool _validateDateTime() {
+    final now = DateTime.now();
+
     if (_startDateTime == null || _endDateTime == null) {
       _showErrorSnackbar(
           'Por favor, selecciona las fechas de inicio y finalización del evento.');
       return false;
     }
+
+    if (_startDateTime!.isBefore(now)) {
+      _showErrorSnackbar(
+          'La fecha de inicio debe ser posterior a la fecha y hora actual.');
+      return false;
+    }
+
     if (_endDateTime!.isBefore(_startDateTime!)) {
       _showErrorSnackbar(
           'La fecha de finalización debe ser posterior a la fecha de inicio.');
