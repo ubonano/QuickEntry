@@ -38,7 +38,6 @@ dependencies:
   crypto:
   firebase_core:
   cloud_firestore:
-  flutter_form_builder:
   intl:
 
 dev_dependencies:

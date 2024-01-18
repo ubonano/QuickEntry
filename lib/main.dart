@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:quick_entry/views/home_screen.dart';
 import 'firebase/firebase_options.dart';
+import 'views/event_form_screen.dart';
 
 void main() async {
   await Firebase.initializeApp(
@@ -15,9 +15,9 @@ class QuickEntryApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'QuickEntry',
-      home: HomeScreen(),
+      home: EventFormScreen(),
     );
   }
 }
