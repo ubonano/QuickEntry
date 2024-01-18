@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../config/get_it_setup.dart';
 import '../controllers/event_controller.dart';
+import '../models/event.dart';
 import '../widgets/event_form.dart';
 
 class EventCreateScreen extends StatefulWidget {
@@ -84,17 +85,17 @@ class _EventCreateScreenState extends State<EventCreateScreen> {
   void _submitForm() async {
     if (_formKey.currentState!.validate() && _validateDateTime()) {
       setState(() => _isSubmitting = true);
-      final eventData = {
-        'name': _nameController.text,
-        'description': _descriptionController.text,
-        'address': _addressController.text,
-        'startDateTime': _startDateTime,
-        'endDateTime': _endDateTime,
-        'availableTickets': int.tryParse(_availableTicketsController.text) ?? 0,
-      };
+      final event = Event(
+        name: _nameController.text,
+        description: _descriptionController.text,
+        address: _addressController.text,
+        startDateTime: _startDateTime!,
+        endDateTime: _endDateTime!,
+        availableTickets: int.tryParse(_availableTicketsController.text) ?? 0,
+      );
 
       try {
-        _eventController.createEvent(eventData);
+        _eventController.createEvent(event);
         _showSuccessSnackbar('Evento creado con éxito.');
       } catch (e) {
         _showErrorSnackbar('Error al crear el evento: ${e.toString()}');
