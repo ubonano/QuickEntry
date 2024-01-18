@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
+import '../config/get_it_setup.dart';
+import '../controllers/event_controller.dart';
 
 class EventFormScreen extends StatefulWidget {
   @override
@@ -9,6 +11,9 @@ class EventFormScreen extends StatefulWidget {
 
 class _EventFormScreenState extends State<EventFormScreen> {
   final _formKey = GlobalKey<FormState>();
+
+  final EventController _eventController = getIt<EventController>();
+
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _addressController = TextEditingController();
@@ -87,7 +92,7 @@ class _EventFormScreenState extends State<EventFormScreen> {
       };
 
       try {
-        await FirebaseFirestore.instance.collection('events').add(eventData);
+        _eventController.createEvent(eventData);
         _showSuccessSnackbar('Evento creado con éxito.');
       } catch (e) {
         _showErrorSnackbar('Error al crear el evento: ${e.toString()}');
