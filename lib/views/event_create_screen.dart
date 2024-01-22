@@ -99,6 +99,10 @@ class _EventCreateScreenState extends State<EventCreateScreen> {
       try {
         await _eventController.createEvent(event);
         _showSuccessSnackbar('Evento creado con éxito.');
+        // Espera un breve momento para que el usuario pueda ver el mensaje
+        await Future.delayed(const Duration(seconds: 2));
+        // Navega a la pantalla anterior
+        Navigator.of(context).pop();
       } catch (e) {
         _showErrorSnackbar('Error al crear el evento');
         print(e.toString()); // TODO Cambiar por algun login

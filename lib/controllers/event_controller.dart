@@ -8,4 +8,14 @@ class EventController {
   Future<void> createEvent(Event event) async {
     await _firestore.collection('events').add(event.toMap());
   }
+
+  Stream<List<Event>> get eventStream {
+    return _firestore
+        .collection('events')
+        .orderBy('startDateTime', descending: false)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) => Event.fromMap(doc.data())).toList();
+    });
+  }
 }

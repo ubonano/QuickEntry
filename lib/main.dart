@@ -3,7 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'config/firebase_options.dart';
 import 'config/get_it_setup.dart';
-import 'views/event_create_screen.dart';
+import 'views/event_list_screen.dart';
 
 void main() async {
   await Firebase.initializeApp(
@@ -28,7 +28,7 @@ class QuickEntryApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'QuickEntry',
-      home: EventCreateScreen(),
+      home: EventsScreen(),
     );
   }
 }
