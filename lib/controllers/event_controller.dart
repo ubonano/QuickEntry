@@ -15,7 +15,13 @@ class EventController {
         .orderBy('startDateTime', descending: false)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) => Event.fromMap(doc.data())).toList();
+      return snapshot.docs
+          .map((doc) => Event.fromMap(doc.data(), doc.id))
+          .toList();
     });
+  }
+
+  Future<void> deleteEvent(String eventId) async {
+    await _firestore.collection('events').doc(eventId).delete();
   }
 }

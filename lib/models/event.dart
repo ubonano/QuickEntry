@@ -1,4 +1,5 @@
 class Event {
+  String id;
   String name;
   String description;
   String address;
@@ -7,6 +8,7 @@ class Event {
   int availableTickets;
 
   Event({
+    this.id = '',
     required this.name,
     required this.description,
     required this.address,
@@ -26,8 +28,9 @@ class Event {
     };
   }
 
-  factory Event.fromMap(Map<String, dynamic> map) {
+  factory Event.fromMap(Map<String, dynamic> map, String id) {
     return Event(
+      id: id,
       name: map['name'],
       description: map['description'],
       address: map['address'],
