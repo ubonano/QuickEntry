@@ -36,7 +36,7 @@ class EventForm extends StatelessWidget {
                 'Por favor ingrese una dirección'),
             _buildDateTimePicker('Fecha y hora de inicio:', startDateTime,
                 () => onPickDateTime(true)),
-            _buildDateTimePicker('Fecha de finalización:', endDateTime,
+            _buildDateTimePicker('Fecha y hora de finalización:', endDateTime,
                 () => onPickDateTime(false)),
             _buildTextFormField(
               fieldsControllers['availableTickets']!,
@@ -45,11 +45,13 @@ class EventForm extends StatelessWidget {
               keyboardType: TextInputType.number,
               validator: _validateTickets,
             ),
-            const SizedBox(height: 20), // Espacio adicional
+            const SizedBox(height: 20),
             isSubmitting
                 ? const CircularProgressIndicator()
                 : ElevatedButton(
-                    onPressed: onSubmit, child: const Text('Crear')),
+                    onPressed: onSubmit,
+                    child: const Text('Crear'),
+                  ),
           ],
         ),
       ),
@@ -83,7 +85,10 @@ class EventForm extends StatelessWidget {
   }
 
   Widget _buildDateTimePicker(
-      String label, DateTime? selectedDate, VoidCallback onTap) {
+    String label,
+    DateTime? selectedDate,
+    VoidCallback onTap,
+  ) {
     return ListTile(
       title: Text(
           '$label ${selectedDate != null ? DateFormat('yyyy-MM-dd HH:mm').format(selectedDate) : ''}'),

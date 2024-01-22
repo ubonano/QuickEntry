@@ -78,7 +78,9 @@ class _EventCreateScreenState extends State<EventCreateScreen> {
       BuildContext context, DateTime? initialDateTime) async {
     return await showTimePicker(
       context: context,
-      initialTime: TimeOfDay.fromDateTime(initialDateTime ?? DateTime.now()),
+      initialTime: TimeOfDay.fromDateTime(
+        initialDateTime ?? DateTime.now(),
+      ),
     );
   }
 
@@ -95,10 +97,11 @@ class _EventCreateScreenState extends State<EventCreateScreen> {
       );
 
       try {
-        _eventController.createEvent(event);
+        await _eventController.createEvent(event);
         _showSuccessSnackbar('Evento creado con éxito.');
       } catch (e) {
-        _showErrorSnackbar('Error al crear el evento: ${e.toString()}');
+        _showErrorSnackbar('Error al crear el evento');
+        print(e.toString()); // TODO Cambiar por algun login
       }
       setState(() => _isSubmitting = false);
     }
@@ -130,14 +133,19 @@ class _EventCreateScreenState extends State<EventCreateScreen> {
   void _showSuccessSnackbar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-          content: Text(message),
-          backgroundColor: Colors.green,
-          duration: const Duration(seconds: 2)),
+        content: Text(message),
+        backgroundColor: Colors.green,
+        duration: const Duration(seconds: 2),
+      ),
     );
   }
 
   void _showErrorSnackbar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message), duration: const Duration(seconds: 2)));
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 }
