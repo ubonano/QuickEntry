@@ -25,4 +25,15 @@ class Event {
       'availableTickets': availableTickets,
     };
   }
+
+  factory Event.fromMap(Map<String, dynamic> map) {
+    return Event(
+      name: map['name'],
+      description: map['description'],
+      address: map['address'],
+      startDateTime: map['startDateTime'].toDate(),
+      endDateTime: map['endDateTime'].toDate(),
+      availableTickets: map['availableTickets'],
+    );
+  }
 }
