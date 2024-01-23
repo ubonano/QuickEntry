@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../config/get_it_setup.dart';
 import '../controllers/event_controller.dart';
@@ -17,9 +18,20 @@ class EventsList extends StatelessWidget {
       itemCount: events.length,
       itemBuilder: (context, index) {
         final event = events[index];
+        final formattedDate =
+            DateFormat('HH:mm \'hs del\' d \'de\' MMMM \'del\' y', 'es_ES')
+                .format(event.startDateTime);
+
         return ListTile(
           title: Text(event.name),
-          subtitle: Text(event.description),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(event.description),
+              Text('Fecha de inicio: $formattedDate'),
+              Text('Entradas totales: ${event.availableTickets}'),
+            ],
+          ),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [

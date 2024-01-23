@@ -94,6 +94,11 @@ class _EventEditScreenState extends State<EventEditScreen> {
   }
 
   void _submitForm() async {
+    if (!_hasChanges()) {
+      _showErrorSnackbar('No se han realizado cambios');
+      return;
+    }
+
     if (_formKey.currentState!.validate() && _validateDateTime()) {
       setState(() => _isSubmitting = true);
 
@@ -118,6 +123,15 @@ class _EventEditScreenState extends State<EventEditScreen> {
       }
       setState(() => _isSubmitting = false);
     }
+  }
+
+  bool _hasChanges() {
+    return _nameController.text != widget.event.name ||
+        _descriptionController.text != widget.event.description ||
+        _addressController.text != widget.event.address ||
+        _availableTicketsController.text !=
+            widget.event.availableTickets.toString() ||
+        _startDateTime != widget.event.startDateTime;
   }
 
   bool _validateDateTime() {
