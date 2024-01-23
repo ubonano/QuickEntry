@@ -21,6 +21,13 @@ class EventController {
     });
   }
 
+  Future<void> updateEvent(String eventId, Event updatedEvent) async {
+    await _firestore
+        .collection('events')
+        .doc(eventId)
+        .update(updatedEvent.toMap());
+  }
+
   Future<void> deleteEvent(String eventId) async {
     await _firestore.collection('events').doc(eventId).delete();
   }

@@ -46,7 +46,7 @@ class EventForm extends StatelessWidget {
                 ? const CircularProgressIndicator()
                 : ElevatedButton(
                     onPressed: onSubmit,
-                    child: const Text('Crear'),
+                    child: const Text('Guardar'),
                   ),
           ],
         ),

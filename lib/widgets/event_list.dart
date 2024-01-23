@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../config/get_it_setup.dart';
 import '../controllers/event_controller.dart';
 import '../models/event.dart';
+import '../views/event_edit_screen.dart';
 
 class EventsList extends StatelessWidget {
   final List<Event> events;
@@ -19,12 +20,29 @@ class EventsList extends StatelessWidget {
         return ListTile(
           title: Text(event.name),
           subtitle: Text(event.description),
-          trailing: IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: () => _confirmDeletion(context, event),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: () => _navigateToEditScreen(context, event),
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete),
+                onPressed: () => _confirmDeletion(context, event),
+              ),
+            ],
           ),
         );
       },
+    );
+  }
+
+  void _navigateToEditScreen(BuildContext context, Event event) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => EventEditScreen(event: event),
+      ),
     );
   }
 
