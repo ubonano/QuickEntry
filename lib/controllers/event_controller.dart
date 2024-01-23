@@ -8,4 +8,27 @@ class EventController {
   Future<void> createEvent(Event event) async {
     await _firestore.collection('events').add(event.toMap());
   }
+
+  Stream<List<Event>> get eventStream {
+    return _firestore
+        .collection('events')
+        .orderBy('startDateTime', descending: false)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs
+          .map((doc) => Event.fromMap(doc.data(), doc.id))
+          .toList();
+    });
+  }
+
+  Future<void> updateEvent(String eventId, Event updatedEvent) async {
+    await _firestore
+        .collection('events')
+        .doc(eventId)
+        .update(updatedEvent.toMap());
+  }
+
+  Future<void> deleteEvent(String eventId) async {
+    await _firestore.collection('events').doc(eventId).delete();
+  }
 }

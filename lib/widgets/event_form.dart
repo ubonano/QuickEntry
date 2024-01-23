@@ -9,7 +9,6 @@ class EventForm extends StatelessWidget {
     required this.onPickDateTime,
     required this.onSubmit,
     this.startDateTime,
-    this.endDateTime,
     required this.isSubmitting,
   }) : super(key: key);
 
@@ -18,7 +17,6 @@ class EventForm extends StatelessWidget {
   final Function(bool) onPickDateTime;
   final VoidCallback onSubmit;
   final DateTime? startDateTime;
-  final DateTime? endDateTime;
   final bool isSubmitting;
 
   @override
@@ -36,8 +34,6 @@ class EventForm extends StatelessWidget {
                 'Por favor ingrese una dirección'),
             _buildDateTimePicker('Fecha y hora de inicio:', startDateTime,
                 () => onPickDateTime(true)),
-            _buildDateTimePicker('Fecha y hora de finalización:', endDateTime,
-                () => onPickDateTime(false)),
             _buildTextFormField(
               fieldsControllers['availableTickets']!,
               'Entradas disponible',
@@ -50,7 +46,7 @@ class EventForm extends StatelessWidget {
                 ? const CircularProgressIndicator()
                 : ElevatedButton(
                     onPressed: onSubmit,
-                    child: const Text('Crear'),
+                    child: const Text('Guardar'),
                   ),
           ],
         ),

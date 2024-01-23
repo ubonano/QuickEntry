@@ -5,29 +5,44 @@ import '../controllers/event_controller.dart';
 import '../models/event.dart';
 import '../widgets/event_form.dart';
 
-class EventCreateScreen extends StatefulWidget {
-  const EventCreateScreen({super.key});
+class EventEditScreen extends StatefulWidget {
+  final Event event;
+
+  const EventEditScreen({super.key, required this.event});
 
   @override
-  _EventCreateScreenState createState() => _EventCreateScreenState();
+  _EventEditScreenState createState() => _EventEditScreenState();
 }
 
-class _EventCreateScreenState extends State<EventCreateScreen> {
+class _EventEditScreenState extends State<EventEditScreen> {
   final _formKey = GlobalKey<FormState>();
 
   final EventController _eventController = getIt<EventController>();
 
-  final _nameController = TextEditingController();
-  final _descriptionController = TextEditingController();
-  final _addressController = TextEditingController();
-  final _availableTicketsController = TextEditingController();
-  DateTime? _startDateTime;
+  late TextEditingController _nameController;
+  late TextEditingController _descriptionController;
+  late TextEditingController _addressController;
+  late TextEditingController _availableTicketsController;
+  late DateTime _startDateTime;
   bool _isSubmitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _nameController = TextEditingController(text: widget.event.name);
+    _descriptionController =
+        TextEditingController(text: widget.event.description);
+    _addressController = TextEditingController(text: widget.event.address);
+    _availableTicketsController =
+        TextEditingController(text: widget.event.availableTickets.toString());
+    _startDateTime = widget.event.startDateTime;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Crear evento')),
+      appBar: AppBar(title: const Text('Editar evento')),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: EventForm(
@@ -79,39 +94,50 @@ class _EventCreateScreenState extends State<EventCreateScreen> {
   }
 
   void _submitForm() async {
+    if (!_hasChanges()) {
+      _showErrorSnackbar('No se han realizado cambios');
+      return;
+    }
+
     if (_formKey.currentState!.validate() && _validateDateTime()) {
       setState(() => _isSubmitting = true);
-      final event = Event(
+
+      final updatedEvent = Event(
         name: _nameController.text,
         description: _descriptionController.text,
         address: _addressController.text,
-        startDateTime: _startDateTime!,
+        startDateTime: _startDateTime,
         availableTickets: int.tryParse(_availableTicketsController.text) ?? 0,
       );
 
       try {
-        await _eventController.createEvent(event);
-        _showSuccessSnackbar('Evento creado con éxito.');
+        // Actualizar el evento existente
+        await _eventController.updateEvent(widget.event.id, updatedEvent);
+        _showSuccessSnackbar('Evento actualizado con éxito.');
 
         await Future.delayed(const Duration(seconds: 2));
-
         Navigator.of(context).pop();
       } catch (e) {
-        _showErrorSnackbar('Error al crear el evento');
-        print(e.toString()); // TODO Cambiar por algun login
+        _showErrorSnackbar('Error al actualizar el evento');
+        print(e.toString());
       }
       setState(() => _isSubmitting = false);
     }
   }
 
+  bool _hasChanges() {
+    return _nameController.text != widget.event.name ||
+        _descriptionController.text != widget.event.description ||
+        _addressController.text != widget.event.address ||
+        _availableTicketsController.text !=
+            widget.event.availableTickets.toString() ||
+        _startDateTime != widget.event.startDateTime;
+  }
+
   bool _validateDateTime() {
     final now = DateTime.now();
-    if (_startDateTime == null) {
-      _showErrorSnackbar(
-          'Por favor, selecciona la fecha y hora de inicio del evento.');
-      return false;
-    }
-    if (_startDateTime!.isBefore(now)) {
+
+    if (_startDateTime.isBefore(now)) {
       _showErrorSnackbar(
           'La fecha de inicio debe ser posterior a la fecha y hora actual.');
       return false;

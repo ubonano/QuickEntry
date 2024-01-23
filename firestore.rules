@@ -4,6 +4,7 @@ service cloud.firestore {
   match /databases/{database}/documents {
     match /events/{eventId} {
       allow create,update: if isValidEvent(request.resource.data);
+      allow read, delete: if true; 
     }
 
     function isValidEvent(data) {
@@ -11,9 +12,7 @@ service cloud.firestore {
              && data.description is string
              && data.address is string
              && data.startDateTime is timestamp
-             && data.endDateTime is timestamp
              && data.availableTickets is int
-             && data.startDateTime < data.endDateTime; // Asegura que la fecha de inicio es anterior a la de fin
     }
   }
 }
