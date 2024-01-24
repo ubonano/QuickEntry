@@ -7,16 +7,18 @@ class EventForm extends StatelessWidget {
     required this.formKey,
     required this.fieldsControllers,
     required this.onPickDateTime,
-    required this.onSubmit,
+    this.onSubmit,
     this.startDateTime,
+    this.endDateTime,
     required this.isSubmitting,
   }) : super(key: key);
 
   final GlobalKey<FormState> formKey;
   final Map<String, TextEditingController> fieldsControllers;
   final Function(bool) onPickDateTime;
-  final VoidCallback onSubmit;
+  final VoidCallback? onSubmit;
   final DateTime? startDateTime;
+  final DateTime? endDateTime;
   final bool isSubmitting;
 
   @override
@@ -26,14 +28,31 @@ class EventForm extends StatelessWidget {
       child: SingleChildScrollView(
         child: Column(
           children: <Widget>[
-            _buildTextFormField(fieldsControllers['name']!, 'Nombre',
-                'Por favor ingrese un nombre'),
-            _buildTextFormField(fieldsControllers['description']!,
-                'Descripción', 'Por favor ingrese una descripcion'),
-            _buildTextFormField(fieldsControllers['address']!, 'Dirección',
-                'Por favor ingrese una dirección'),
-            _buildDateTimePicker('Fecha y hora de inicio:', startDateTime,
-                () => onPickDateTime(true)),
+            _buildTextFormField(
+              fieldsControllers['name']!,
+              'Nombre',
+              'Por favor ingrese un nombre',
+            ),
+            _buildTextFormField(
+              fieldsControllers['description']!,
+              'Descripción',
+              'Por favor ingrese una descripcion',
+            ),
+            _buildTextFormField(
+              fieldsControllers['address']!,
+              'Dirección',
+              'Por favor ingrese una dirección',
+            ),
+            _buildDateTimePicker(
+              'Fecha y hora de inicio:',
+              startDateTime,
+              () => onPickDateTime(true),
+            ),
+            _buildDateTimePicker(
+              'Fecha y hora de finalización:',
+              endDateTime,
+              () => onPickDateTime(false),
+            ),
             _buildTextFormField(
               fieldsControllers['availableTickets']!,
               'Entradas disponible',

@@ -22,6 +22,7 @@ class _EventCreateScreenState extends State<EventCreateScreen> {
   final _addressController = TextEditingController();
   final _availableTicketsController = TextEditingController();
   DateTime? _startDateTime;
+  DateTime? _endDateTime;
   bool _isSubmitting = false;
 
   @override
@@ -42,19 +43,24 @@ class _EventCreateScreenState extends State<EventCreateScreen> {
           onSubmit: _submitForm,
           isSubmitting: _isSubmitting,
           startDateTime: _startDateTime,
+          endDateTime: _endDateTime,
         ),
       ),
     );
   }
 
   Future<void> _pickDateTime(bool isStart) async {
-    final date = await _selectDate(context, _startDateTime);
-    final time = await _selectTime(context, _startDateTime);
+    final date =
+        await _selectDate(context, isStart ? _startDateTime : _endDateTime);
+    final time =
+        await _selectTime(context, isStart ? _startDateTime : _endDateTime);
 
     if (date != null && time != null) {
       final selectedDateTime =
           DateTime(date.year, date.month, date.day, time.hour, time.minute);
-      setState(() => _startDateTime = selectedDateTime);
+      setState(() => isStart
+          ? _startDateTime = selectedDateTime
+          : _endDateTime = selectedDateTime);
     }
   }
 
@@ -86,6 +92,7 @@ class _EventCreateScreenState extends State<EventCreateScreen> {
         description: _descriptionController.text,
         address: _addressController.text,
         startDateTime: _startDateTime!,
+        endDateTime: _endDateTime!,
         availableTickets: int.tryParse(_availableTicketsController.text) ?? 0,
       );
 
@@ -106,14 +113,22 @@ class _EventCreateScreenState extends State<EventCreateScreen> {
 
   bool _validateDateTime() {
     final now = DateTime.now();
-    if (_startDateTime == null) {
+
+    if (_startDateTime == null || _endDateTime == null) {
       _showErrorSnackbar(
-          'Por favor, selecciona la fecha y hora de inicio del evento.');
+          'Por favor, selecciona las fechas de inicio y finalización del evento.');
       return false;
     }
+
     if (_startDateTime!.isBefore(now)) {
       _showErrorSnackbar(
           'La fecha de inicio debe ser posterior a la fecha y hora actual.');
+      return false;
+    }
+
+    if (_endDateTime!.isBefore(_startDateTime!)) {
+      _showErrorSnackbar(
+          'La fecha de finalización debe ser posterior a la fecha de inicio.');
       return false;
     }
     return true;

@@ -18,43 +18,54 @@ class EventsList extends StatelessWidget {
       itemCount: events.length,
       itemBuilder: (context, index) {
         final event = events[index];
-        final formattedDate =
-            DateFormat('HH:mm \'hs del\' d \'de\' MMMM \'del\' y', 'es_ES')
-                .format(event.startDateTime);
-
-        return ListTile(
-          title: Text(event.name),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(event.description),
-              Text('Fecha de inicio: $formattedDate'),
-              Text('Entradas totales: ${event.availableTickets}'),
-            ],
-          ),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.edit),
-                onPressed: () => _navigateToEditScreen(context, event),
-              ),
-              IconButton(
-                icon: const Icon(Icons.delete),
-                onPressed: () => _confirmDeletion(context, event),
-              ),
-            ],
-          ),
-        );
+        return _buildEventTile(context, event);
       },
     );
   }
 
+  ListTile _buildEventTile(BuildContext context, Event event) {
+    final formattedStartDateTime = _formatDateTime(event.startDateTime);
+    final formattedEndDateTime = _formatDateTime(event.endDateTime);
+
+    return ListTile(
+      title: Text(event.name),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(event.description),
+          Text('Inicio: $formattedStartDateTime'),
+          Text('Finalización: $formattedEndDateTime'),
+          Text('Entradas totales: ${event.availableTickets}'),
+        ],
+      ),
+      trailing: _buildTrailingIcons(context, event),
+    );
+  }
+
+  Row _buildTrailingIcons(BuildContext context, Event event) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.edit),
+          onPressed: () => _navigateToEditScreen(context, event),
+        ),
+        IconButton(
+          icon: const Icon(Icons.delete),
+          onPressed: () => _confirmDeletion(context, event),
+        ),
+      ],
+    );
+  }
+
+  String _formatDateTime(DateTime dateTime) {
+    return DateFormat('d \'de\' MMMM \'del\' y \'a las\' HH:mm \'hs\'', 'es_ES')
+        .format(dateTime);
+  }
+
   void _navigateToEditScreen(BuildContext context, Event event) {
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => EventEditScreen(event: event),
-      ),
+      MaterialPageRoute(builder: (context) => EventEditScreen(event: event)),
     );
   }
 
@@ -69,9 +80,7 @@ class EventsList extends StatelessWidget {
           actions: <Widget>[
             TextButton(
               child: const Text("Cancelar"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              onPressed: () => Navigator.of(context).pop(),
             ),
             TextButton(
               child: const Text("Eliminar"),

@@ -4,6 +4,7 @@ class Event {
   String description;
   String address;
   DateTime startDateTime;
+  DateTime endDateTime;
   int availableTickets;
 
   Event({
@@ -12,6 +13,7 @@ class Event {
     required this.description,
     required this.address,
     required this.startDateTime,
+    required this.endDateTime,
     required this.availableTickets,
   });
 
@@ -21,6 +23,7 @@ class Event {
       'description': description,
       'address': address,
       'startDateTime': startDateTime,
+      'endDateTime': endDateTime,
       'availableTickets': availableTickets,
     };
   }
@@ -32,6 +35,7 @@ class Event {
       description: map['description'],
       address: map['address'],
       startDateTime: map['startDateTime'].toDate(),
+      endDateTime: map['endDateTime'].toDate(),
       availableTickets: map['availableTickets'],
     );
   }

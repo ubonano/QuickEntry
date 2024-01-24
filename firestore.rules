@@ -12,7 +12,9 @@ service cloud.firestore {
              && data.description is string
              && data.address is string
              && data.startDateTime is timestamp
+             && data.endDateTime is timestamp
              && data.availableTickets is int
+             && data.startDateTime < data.endDateTime;
     }
   }
 }

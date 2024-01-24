@@ -24,6 +24,7 @@ class _EventEditScreenState extends State<EventEditScreen> {
   late TextEditingController _addressController;
   late TextEditingController _availableTicketsController;
   late DateTime _startDateTime;
+  late DateTime _endDateTime;
   bool _isSubmitting = false;
 
   @override
@@ -37,6 +38,7 @@ class _EventEditScreenState extends State<EventEditScreen> {
     _availableTicketsController =
         TextEditingController(text: widget.event.availableTickets.toString());
     _startDateTime = widget.event.startDateTime;
+    _endDateTime = widget.event.endDateTime;
   }
 
   @override
@@ -57,24 +59,39 @@ class _EventEditScreenState extends State<EventEditScreen> {
           onSubmit: _submitForm,
           isSubmitting: _isSubmitting,
           startDateTime: _startDateTime,
+          endDateTime: _endDateTime,
         ),
       ),
     );
   }
 
   Future<void> _pickDateTime(bool isStart) async {
-    final date = await _selectDate(context, _startDateTime);
-    final time = await _selectTime(context, _startDateTime);
+    final date =
+        await _selectDate(context, isStart ? _startDateTime : _endDateTime);
+    final time =
+        await _selectTime(context, isStart ? _startDateTime : _endDateTime);
 
     if (date != null && time != null) {
-      final selectedDateTime =
-          DateTime(date.year, date.month, date.day, time.hour, time.minute);
-      setState(() => _startDateTime = selectedDateTime);
+      final selectedDateTime = DateTime(
+        date.year,
+        date.month,
+        date.day,
+        time.hour,
+        time.minute,
+      );
+
+      setState(
+        () => isStart
+            ? _startDateTime = selectedDateTime
+            : _endDateTime = selectedDateTime,
+      );
     }
   }
 
   Future<DateTime?> _selectDate(
-      BuildContext context, DateTime? initialDate) async {
+    BuildContext context,
+    DateTime? initialDate,
+  ) async {
     return await showDatePicker(
       context: context,
       initialDate: initialDate ?? DateTime.now(),
@@ -84,7 +101,9 @@ class _EventEditScreenState extends State<EventEditScreen> {
   }
 
   Future<TimeOfDay?> _selectTime(
-      BuildContext context, DateTime? initialDateTime) async {
+    BuildContext context,
+    DateTime? initialDateTime,
+  ) async {
     return await showTimePicker(
       context: context,
       initialTime: TimeOfDay.fromDateTime(
@@ -107,11 +126,11 @@ class _EventEditScreenState extends State<EventEditScreen> {
         description: _descriptionController.text,
         address: _addressController.text,
         startDateTime: _startDateTime,
+        endDateTime: _endDateTime,
         availableTickets: int.tryParse(_availableTicketsController.text) ?? 0,
       );
 
       try {
-        // Actualizar el evento existente
         await _eventController.updateEvent(widget.event.id, updatedEvent);
         _showSuccessSnackbar('Evento actualizado con éxito.');
 
@@ -119,7 +138,7 @@ class _EventEditScreenState extends State<EventEditScreen> {
         Navigator.of(context).pop();
       } catch (e) {
         _showErrorSnackbar('Error al actualizar el evento');
-        print(e.toString());
+        print(e.toString()); // TODO cambiar por sistema de loggin
       }
       setState(() => _isSubmitting = false);
     }
@@ -131,7 +150,8 @@ class _EventEditScreenState extends State<EventEditScreen> {
         _addressController.text != widget.event.address ||
         _availableTicketsController.text !=
             widget.event.availableTickets.toString() ||
-        _startDateTime != widget.event.startDateTime;
+        _startDateTime != widget.event.startDateTime ||
+        _endDateTime != widget.event.endDateTime;
   }
 
   bool _validateDateTime() {
@@ -140,6 +160,12 @@ class _EventEditScreenState extends State<EventEditScreen> {
     if (_startDateTime.isBefore(now)) {
       _showErrorSnackbar(
           'La fecha de inicio debe ser posterior a la fecha y hora actual.');
+      return false;
+    }
+
+    if (_endDateTime.isBefore(_startDateTime)) {
+      _showErrorSnackbar(
+          'La fecha de finalización debe ser posterior a la fecha de inicio.');
       return false;
     }
     return true;
