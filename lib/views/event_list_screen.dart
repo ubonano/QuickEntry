@@ -23,7 +23,7 @@ class _EventsScreenState extends State<EventsScreen> {
         title: const Text('Eventos'),
       ),
       body: GenericStreamBuilder<List<Event>>(
-        stream: _eventController.eventStream,
+        stream: _eventController.upcomingEventsStream,
         builder: (context, snapshot) => EventsList(events: snapshot.data!),
         errorMessage: 'Error al cargar los eventos.',
         emptyMessage: 'No hay eventos disponibles.',

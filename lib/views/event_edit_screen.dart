@@ -122,6 +122,7 @@ class _EventEditScreenState extends State<EventEditScreen> {
       setState(() => _isSubmitting = true);
 
       final updatedEvent = Event(
+        state: widget.event.state,
         name: _nameController.text,
         description: _descriptionController.text,
         address: _addressController.text,

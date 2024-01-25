@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quick_entry/utils/event_state_enum.dart';
 
 import '../config/get_it_setup.dart';
 import '../controllers/event_controller.dart';
@@ -88,6 +89,7 @@ class _EventCreateScreenState extends State<EventCreateScreen> {
     if (_formKey.currentState!.validate() && _validateDateTime()) {
       setState(() => _isSubmitting = true);
       final event = Event(
+        state: EventState.pending,
         name: _nameController.text,
         description: _descriptionController.text,
         address: _addressController.text,
