@@ -6,7 +6,7 @@ extension EventStateExtension on EventState {
       case EventState.pending:
         return "Pendiente";
       case EventState.ongoing:
-        return "En Curso";
+        return "En curso";
       case EventState.completed:
         return "Finalizado";
       default:

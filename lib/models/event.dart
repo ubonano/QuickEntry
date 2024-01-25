@@ -37,7 +37,7 @@ class Event {
     return Event(
       id: id,
       state: EventState.values.firstWhere(
-        (e) => e.value == map['estado'],
+        (e) => e.value == map['state'],
         orElse: () =>
             EventState.pending, // Valor por defecto en caso de no coincidencia
       ),

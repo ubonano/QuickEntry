@@ -6,19 +6,19 @@ import '../repositories/event_repository.dart';
 class EventController {
   final EventRepository _eventRepository = getIt<EventRepository>();
 
-  final BehaviorSubject<List<Event>> _upcomingEventsSubject =
+  final BehaviorSubject<List<Event>> _pendingEventsSubject =
       BehaviorSubject<List<Event>>();
   final BehaviorSubject<List<Event>> _ongoingEventsSubject =
       BehaviorSubject<List<Event>>();
 
   EventController() {
-    _initUpcomingEventsStream();
+    _initPendingEventsStream();
     _initOngoingEventsStream();
   }
 
-  void _initUpcomingEventsStream() {
-    _eventRepository.getUpcomingEventsStream().listen((events) {
-      _upcomingEventsSubject.add(events);
+  void _initPendingEventsStream() {
+    _eventRepository.getPendingEventsStream().listen((events) {
+      _pendingEventsSubject.add(events);
     });
   }
 
@@ -28,7 +28,7 @@ class EventController {
     });
   }
 
-  Stream<List<Event>> get upcomingEventsStream => _upcomingEventsSubject.stream;
+  Stream<List<Event>> get pendingEventsStream => _pendingEventsSubject.stream;
   Stream<List<Event>> get ongoingEventsStream => _ongoingEventsSubject.stream;
 
   Future<void> createEvent(Event event) async {
@@ -44,7 +44,7 @@ class EventController {
   }
 
   void dispose() {
-    _upcomingEventsSubject.close();
+    _pendingEventsSubject.close();
     _ongoingEventsSubject.close();
   }
 }

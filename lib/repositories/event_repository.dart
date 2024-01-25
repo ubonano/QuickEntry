@@ -9,7 +9,7 @@ class EventRepository {
     await _firestore.collection('events').add(event.toMap());
   }
 
-  Stream<List<Event>> getUpcomingEventsStream() {
+  Stream<List<Event>> getPendingEventsStream() {
     return _firestore
         .collection('events')
         .where('state', isEqualTo: EventState.pending.value)
@@ -22,15 +22,6 @@ class EventRepository {
     return _firestore
         .collection('events')
         .where('state', isEqualTo: EventState.ongoing.value)
-        .orderBy('startDateTime', descending: false)
-        .snapshots()
-        .map((snapshot) => _mapSnapshotToEvents(snapshot));
-  }
-
-  Stream<List<Event>> getCompletedEventsStream() {
-    return _firestore
-        .collection('events')
-        .where('state', isEqualTo: EventState.completed.value)
         .orderBy('startDateTime', descending: false)
         .snapshots()
         .map((snapshot) => _mapSnapshotToEvents(snapshot));
