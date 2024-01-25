@@ -40,6 +40,7 @@ dependencies:
   cloud_firestore:
   intl:
   get_it:
+  rxdart:
 
 dev_dependencies:
   flutter_test:

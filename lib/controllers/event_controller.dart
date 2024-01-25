@@ -1,34 +1,50 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:rxdart/rxdart.dart';
+import '../config/get_it_setup.dart';
 import '../models/event.dart';
+import '../repositories/event_repository.dart';
 
 class EventController {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final EventRepository _eventRepository = getIt<EventRepository>();
 
-  Future<void> createEvent(Event event) async {
-    await _firestore.collection('events').add(event.toMap());
+  final BehaviorSubject<List<Event>> _pendingEventsSubject =
+      BehaviorSubject<List<Event>>();
+  final BehaviorSubject<List<Event>> _ongoingEventsSubject =
+      BehaviorSubject<List<Event>>();
+
+  EventController() {
+    _initPendingEventsStream();
+    _initOngoingEventsStream();
   }
 
-  Stream<List<Event>> get eventStream {
-    return _firestore
-        .collection('events')
-        .orderBy('startDateTime', descending: false)
-        .snapshots()
-        .map((snapshot) {
-      return snapshot.docs
-          .map((doc) => Event.fromMap(doc.data(), doc.id))
-          .toList();
+  void _initPendingEventsStream() {
+    _eventRepository.getPendingEventsStream().listen((events) {
+      _pendingEventsSubject.add(events);
     });
   }
 
+  void _initOngoingEventsStream() {
+    _eventRepository.getOngoingEventsStream().listen((events) {
+      _ongoingEventsSubject.add(events);
+    });
+  }
+
+  Stream<List<Event>> get pendingEventsStream => _pendingEventsSubject.stream;
+  Stream<List<Event>> get ongoingEventsStream => _ongoingEventsSubject.stream;
+
+  Future<void> createEvent(Event event) async {
+    await _eventRepository.createEvent(event);
+  }
+
   Future<void> updateEvent(String eventId, Event updatedEvent) async {
-    await _firestore
-        .collection('events')
-        .doc(eventId)
-        .update(updatedEvent.toMap());
+    await _eventRepository.updateEvent(eventId, updatedEvent);
   }
 
   Future<void> deleteEvent(String eventId) async {
-    await _firestore.collection('events').doc(eventId).delete();
+    await _eventRepository.deleteEvent(eventId);
+  }
+
+  void dispose() {
+    _pendingEventsSubject.close();
+    _ongoingEventsSubject.close();
   }
 }

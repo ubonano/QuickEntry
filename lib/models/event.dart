@@ -1,5 +1,8 @@
+import 'package:quick_entry/utils/event_state_enum.dart';
+
 class Event {
   String id;
+  EventState state;
   String name;
   String description;
   String address;
@@ -9,6 +12,7 @@ class Event {
 
   Event({
     this.id = '',
+    required this.state,
     required this.name,
     required this.description,
     required this.address,
@@ -20,6 +24,7 @@ class Event {
   Map<String, dynamic> toMap() {
     return {
       'name': name,
+      'state': state.value,
       'description': description,
       'address': address,
       'startDateTime': startDateTime,
@@ -31,6 +36,11 @@ class Event {
   factory Event.fromMap(Map<String, dynamic> map, String id) {
     return Event(
       id: id,
+      state: EventState.values.firstWhere(
+        (e) => e.value == map['state'],
+        orElse: () =>
+            EventState.pending, // Valor por defecto en caso de no coincidencia
+      ),
       name: map['name'],
       description: map['description'],
       address: map['address'],
