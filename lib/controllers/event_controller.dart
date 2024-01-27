@@ -9,9 +9,6 @@ class EventController {
   final BehaviorSubject<List<Event>> _combinedEventsSubject =
       BehaviorSubject<List<Event>>();
 
-  Stream<List<Event>> get pendingAndOngoingEventsStream =>
-      _combinedEventsSubject.stream;
-
   EventController() {
     _initPendingAndOngoingEventsStream();
   }
@@ -22,26 +19,36 @@ class EventController {
     });
   }
 
+  Stream<List<Event>> get pendingAndOngoingEventsStream =>
+      _combinedEventsSubject.stream;
+
   Future<void> startEvent(Event event) async {
-    await _eventRepository.updateEvent(
-      event.id,
-      event.copyWith(state: EventState.ongoing),
-    );
+    if (event.state == EventState.pending) {
+      await _eventRepository.updateEvent(
+        event.id,
+        event.copyWith(state: EventState.ongoing),
+      );
+    }
   }
 
   Future<void> endEvent(Event event) async {
-    await _eventRepository.updateEvent(
-      event.id,
-      event.copyWith(state: EventState.completed),
-    );
+    if (event.state == EventState.ongoing) {
+      await _eventRepository.updateEvent(
+        event.id,
+        event.copyWith(state: EventState.completed),
+      );
+    }
+  }
+
+  Future<void> updateEvent(String eventId, Event updatedEvent) async {
+    Event currentEvent = await _eventRepository.getEventById(eventId);
+    if (currentEvent.state == EventState.pending) {
+      await _eventRepository.updateEvent(eventId, updatedEvent);
+    }
   }
 
   Future<void> createEvent(Event event) async {
     await _eventRepository.createEvent(event);
-  }
-
-  Future<void> updateEvent(String eventId, Event updatedEvent) async {
-    await _eventRepository.updateEvent(eventId, updatedEvent);
   }
 
   Future<void> deleteEvent(String eventId) async {
