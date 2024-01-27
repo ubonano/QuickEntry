@@ -6,20 +6,22 @@ class EventForm extends StatelessWidget {
     Key? key,
     required this.formKey,
     required this.fieldsControllers,
-    required this.onPickDateTime,
+    this.onPickDateTime,
     this.onSubmit,
     this.startDateTime,
     this.endDateTime,
     required this.isSubmitting,
+    this.isEditable = true,
   }) : super(key: key);
 
   final GlobalKey<FormState> formKey;
   final Map<String, TextEditingController> fieldsControllers;
-  final Function(bool) onPickDateTime;
+  final Function(bool)? onPickDateTime;
   final VoidCallback? onSubmit;
   final DateTime? startDateTime;
   final DateTime? endDateTime;
   final bool isSubmitting;
+  final bool isEditable;
 
   @override
   Widget build(BuildContext context) {
@@ -46,12 +48,12 @@ class EventForm extends StatelessWidget {
             _buildDateTimePicker(
               'Fecha y hora de inicio:',
               startDateTime,
-              () => onPickDateTime(true),
+              isEditable ? () => onPickDateTime!(true) : null,
             ),
             _buildDateTimePicker(
               'Fecha y hora de finalización:',
               endDateTime,
-              () => onPickDateTime(false),
+              isEditable ? () => onPickDateTime!(false) : null,
             ),
             _buildTextFormField(
               fieldsControllers['availableTickets']!,
@@ -63,10 +65,12 @@ class EventForm extends StatelessWidget {
             const SizedBox(height: 20),
             isSubmitting
                 ? const CircularProgressIndicator()
-                : ElevatedButton(
-                    onPressed: onSubmit,
-                    child: const Text('Guardar'),
-                  ),
+                : isEditable
+                    ? ElevatedButton(
+                        onPressed: onSubmit,
+                        child: const Text('Guardar'),
+                      )
+                    : const SizedBox.shrink(),
           ],
         ),
       ),
@@ -86,6 +90,7 @@ class EventForm extends StatelessWidget {
       keyboardType: keyboardType,
       validator: validator ??
           (value) => (value == null || value.isEmpty) ? errorMessage : null,
+      enabled: isEditable, // Deshabilitar si no es editable
     );
   }
 
@@ -102,13 +107,13 @@ class EventForm extends StatelessWidget {
   Widget _buildDateTimePicker(
     String label,
     DateTime? selectedDate,
-    VoidCallback onTap,
+    VoidCallback? onTap,
   ) {
     return ListTile(
       title: Text(
           '$label ${selectedDate != null ? DateFormat('yyyy-MM-dd HH:mm').format(selectedDate) : ''}'),
       trailing: const Icon(Icons.calendar_today),
-      onTap: onTap,
+      onTap: onTap, // Deshabilitar si no es editable
     );
   }
 }

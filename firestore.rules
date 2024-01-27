@@ -3,7 +3,8 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /events/{eventId} {
-      allow create,update: if isValidEvent(request.resource.data);
+      allow create: if isValidEvent(request.resource.data);
+      allow update: if canUpdateEvent(eventId, request.resource.data);
       allow read, delete: if true; 
     }
 
@@ -15,6 +16,13 @@ service cloud.firestore {
              && data.endDateTime is timestamp
              && data.availableTickets is int
              && data.startDateTime < data.endDateTime;
+    }
+
+    function canUpdateEvent(eventId, newData) {
+      let eventDoc = get(/databases/$(database)/documents/events/$(eventId));
+      let currentState = eventDoc.data.state;
+      let newState = newData.state;
+      return currentState == 'Pendiente' || (currentState == 'En curso' && newState != null);
     }
   }
 }
