@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../config/get_it_setup.dart';
 import '../controllers/event_controller.dart';
 import '../models/event.dart';
+import '../utils/event_state_enum.dart';
 import '../widgets/event_form.dart';
 
 class EventEditScreen extends StatefulWidget {
@@ -43,23 +44,37 @@ class _EventEditScreenState extends State<EventEditScreen> {
 
   @override
   Widget build(BuildContext context) {
+    bool isEditable = widget.event.state == EventState.pending;
     return Scaffold(
       appBar: AppBar(title: const Text('Editar evento')),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: EventForm(
-          formKey: _formKey,
-          fieldsControllers: {
-            'name': _nameController,
-            'description': _descriptionController,
-            'address': _addressController,
-            'availableTickets': _availableTicketsController,
-          },
-          onPickDateTime: _pickDateTime,
-          onSubmit: _submitForm,
-          isSubmitting: _isSubmitting,
-          startDateTime: _startDateTime,
-          endDateTime: _endDateTime,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Text(
+                'Estado del evento: ${widget.event.state.value}',
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ),
+            EventForm(
+              formKey: _formKey,
+              fieldsControllers: {
+                'name': _nameController,
+                'description': _descriptionController,
+                'address': _addressController,
+                'availableTickets': _availableTicketsController,
+              },
+              onPickDateTime: isEditable ? _pickDateTime : null,
+              onSubmit: isEditable ? _submitForm : null,
+              isSubmitting: _isSubmitting,
+              startDateTime: _startDateTime,
+              endDateTime: _endDateTime,
+              isEditable: isEditable,
+            ),
+          ],
         ),
       ),
     );
@@ -113,6 +128,11 @@ class _EventEditScreenState extends State<EventEditScreen> {
   }
 
   void _submitForm() async {
+    if (widget.event.state != EventState.pending) {
+      _showErrorSnackbar('Solo los eventos pendientes pueden ser modificados');
+      return;
+    }
+
     if (!_hasChanges()) {
       _showErrorSnackbar('No se han realizado cambios');
       return;
@@ -139,7 +159,6 @@ class _EventEditScreenState extends State<EventEditScreen> {
         Navigator.of(context).pop();
       } catch (e) {
         _showErrorSnackbar('Error al actualizar el evento');
-        print(e.toString()); // TODO cambiar por sistema de loggin
       }
       setState(() => _isSubmitting = false);
     }
