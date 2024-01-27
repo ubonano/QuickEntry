@@ -51,12 +51,14 @@ class EventsList extends StatelessWidget {
         if (event.state == EventState.pending)
           IconButton(
             icon: const Icon(Icons.play_arrow),
-            onPressed: () => _confirmStartEvent(context, event),
+            onPressed: () =>
+                _confirmAction(context, event, _eventController.startEvent),
           ),
         if (event.state == EventState.ongoing)
           IconButton(
             icon: const Icon(Icons.stop),
-            onPressed: () => _confirmEndEvent(context, event),
+            onPressed: () =>
+                _confirmAction(context, event, _eventController.endEvent),
           ),
         IconButton(
           icon: const Icon(Icons.edit),
@@ -70,44 +72,18 @@ class EventsList extends StatelessWidget {
     );
   }
 
-  void _confirmStartEvent(BuildContext context, Event event) {
-    _showConfirmationDialog(
-      context: context,
-      title: 'Iniciar Evento',
-      content: '¿Quieres iniciar este evento?',
-      onConfirm: () {
-        _eventController.updateEvent(
-            event.id, event.copyWith(state: EventState.ongoing));
-        Navigator.of(context).pop();
-      },
-    );
-  }
-
-  void _confirmEndEvent(BuildContext context, Event event) {
-    _showConfirmationDialog(
-      context: context,
-      title: 'Finalizar Evento',
-      content: '¿Quieres finalizar este evento?',
-      onConfirm: () {
-        _eventController.updateEvent(
-            event.id, event.copyWith(state: EventState.completed));
-        Navigator.of(context).pop();
-      },
-    );
-  }
-
-  void _showConfirmationDialog({
-    required BuildContext context,
-    required String title,
-    required String content,
-    required VoidCallback onConfirm,
-  }) {
+  void _confirmAction(
+      BuildContext context, Event event, Function(Event) action) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(title),
-          content: Text(content),
+          title: Text(event.state == EventState.pending
+              ? "Iniciar Evento"
+              : "Finalizar Evento"),
+          content: Text(event.state == EventState.pending
+              ? "¿Quieres iniciar este evento?"
+              : "¿Quieres finalizar este evento?"),
           actions: <Widget>[
             TextButton(
               child: const Text("Cancelar"),
@@ -115,7 +91,10 @@ class EventsList extends StatelessWidget {
             ),
             TextButton(
               child: const Text("Confirmar"),
-              onPressed: onConfirm,
+              onPressed: () async {
+                await action(event);
+                Navigator.of(context).pop();
+              },
             ),
           ],
         );
