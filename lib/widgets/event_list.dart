@@ -73,7 +73,10 @@ class EventsList extends StatelessWidget {
   }
 
   void _confirmAction(
-      BuildContext context, Event event, Function(Event) action) {
+    BuildContext context,
+    Event event,
+    Function(Event) action,
+  ) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
