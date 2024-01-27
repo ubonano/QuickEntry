@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../config/get_it_setup.dart';
 import '../controllers/event_controller.dart';
 import '../models/event.dart';
+import '../utils/event_state_enum.dart';
 import '../views/event_edit_screen.dart';
 
 class EventsList extends StatelessWidget {
@@ -36,6 +37,7 @@ class EventsList extends StatelessWidget {
           Text('Inicio: $formattedStartDateTime'),
           Text('Finalización: $formattedEndDateTime'),
           Text('Entradas totales: ${event.availableTickets}'),
+          Text('Estado: ${event.state.value}'),
         ],
       ),
       trailing: _buildTrailingIcons(context, event),
@@ -46,6 +48,16 @@ class EventsList extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        if (event.state == EventState.pending)
+          IconButton(
+            icon: const Icon(Icons.play_arrow),
+            onPressed: () => _confirmStartEvent(context, event),
+          ),
+        if (event.state == EventState.ongoing)
+          IconButton(
+            icon: const Icon(Icons.stop),
+            onPressed: () => _confirmEndEvent(context, event),
+          ),
         IconButton(
           icon: const Icon(Icons.edit),
           onPressed: () => _navigateToEditScreen(context, event),
@@ -55,6 +67,59 @@ class EventsList extends StatelessWidget {
           onPressed: () => _confirmDeletion(context, event),
         ),
       ],
+    );
+  }
+
+  void _confirmStartEvent(BuildContext context, Event event) {
+    _showConfirmationDialog(
+      context: context,
+      title: 'Iniciar Evento',
+      content: '¿Quieres iniciar este evento?',
+      onConfirm: () {
+        _eventController.updateEvent(
+            event.id, event.copyWith(state: EventState.ongoing));
+        Navigator.of(context).pop();
+      },
+    );
+  }
+
+  void _confirmEndEvent(BuildContext context, Event event) {
+    _showConfirmationDialog(
+      context: context,
+      title: 'Finalizar Evento',
+      content: '¿Quieres finalizar este evento?',
+      onConfirm: () {
+        _eventController.updateEvent(
+            event.id, event.copyWith(state: EventState.completed));
+        Navigator.of(context).pop();
+      },
+    );
+  }
+
+  void _showConfirmationDialog({
+    required BuildContext context,
+    required String title,
+    required String content,
+    required VoidCallback onConfirm,
+  }) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(content),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("Cancelar"),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            TextButton(
+              child: const Text("Confirmar"),
+              onPressed: onConfirm,
+            ),
+          ],
+        );
+      },
     );
   }
 

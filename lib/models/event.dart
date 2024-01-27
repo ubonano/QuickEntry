@@ -49,4 +49,26 @@ class Event {
       availableTickets: map['availableTickets'],
     );
   }
+
+  Event copyWith({
+    String? id,
+    String? name,
+    String? description,
+    String? address,
+    DateTime? startDateTime,
+    DateTime? endDateTime,
+    int? availableTickets,
+    EventState? state,
+  }) {
+    return Event(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      address: address ?? this.address,
+      startDateTime: startDateTime ?? this.startDateTime,
+      endDateTime: endDateTime ?? this.endDateTime,
+      availableTickets: availableTickets ?? this.availableTickets,
+      state: state ?? this.state,
+    );
+  }
 }
