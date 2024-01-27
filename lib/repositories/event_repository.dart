@@ -19,6 +19,17 @@ class EventRepository {
         .map((snapshot) => _mapSnapshotToEvents(snapshot));
   }
 
+  Future<Event> getEventById(String eventId) async {
+    DocumentSnapshot<Map<String, dynamic>> docSnapshot =
+        await _firestore.collection('events').doc(eventId).get();
+
+    if (docSnapshot.exists) {
+      return Event.fromMap(docSnapshot.data()!, docSnapshot.id);
+    } else {
+      throw Exception('Evento no encontrado');
+    }
+  }
+
   Future<void> updateEvent(String eventId, Event updatedEvent) async {
     await _firestore
         .collection('events')
