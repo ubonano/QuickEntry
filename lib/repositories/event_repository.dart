@@ -9,29 +9,14 @@ class EventRepository {
     await _firestore.collection('events').add(event.toMap());
   }
 
-  Stream<List<Event>> getPendingEventsStream() {
+  Stream<List<Event>> getPendingAndOngoingEventsStream() {
     return _firestore
         .collection('events')
-        .where('state', isEqualTo: EventState.pending.value)
+        .where('state',
+            whereIn: [EventState.pending.value, EventState.ongoing.value])
         .orderBy('startDateTime', descending: false)
         .snapshots()
         .map((snapshot) => _mapSnapshotToEvents(snapshot));
-  }
-
-  Stream<List<Event>> getOngoingEventsStream() {
-    return _firestore
-        .collection('events')
-        .where('state', isEqualTo: EventState.ongoing.value)
-        .orderBy('startDateTime', descending: false)
-        .snapshots()
-        .map((snapshot) => _mapSnapshotToEvents(snapshot));
-  }
-
-  List<Event> _mapSnapshotToEvents(
-      QuerySnapshot<Map<String, dynamic>> snapshot) {
-    return snapshot.docs
-        .map((doc) => Event.fromMap(doc.data(), doc.id))
-        .toList();
   }
 
   Future<void> updateEvent(String eventId, Event updatedEvent) async {
@@ -43,5 +28,12 @@ class EventRepository {
 
   Future<void> deleteEvent(String eventId) async {
     await _firestore.collection('events').doc(eventId).delete();
+  }
+
+  List<Event> _mapSnapshotToEvents(
+      QuerySnapshot<Map<String, dynamic>> snapshot) {
+    return snapshot.docs
+        .map((doc) => Event.fromMap(doc.data(), doc.id))
+        .toList();
   }
 }
