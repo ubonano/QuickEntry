@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../config/get_it_setup.dart';
 import '../controllers/event_controller.dart';
 import '../models/event.dart';
+import '../utils/event_state_enum.dart';
 import '../views/event_edit_screen.dart';
 
 class EventsList extends StatelessWidget {
@@ -36,6 +37,7 @@ class EventsList extends StatelessWidget {
           Text('Inicio: $formattedStartDateTime'),
           Text('Finalización: $formattedEndDateTime'),
           Text('Entradas totales: ${event.availableTickets}'),
+          Text('Estado: ${event.state.value}'),
         ],
       ),
       trailing: _buildTrailingIcons(context, event),
@@ -46,6 +48,18 @@ class EventsList extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        if (event.state == EventState.pending)
+          IconButton(
+            icon: const Icon(Icons.play_arrow),
+            onPressed: () =>
+                _confirmAction(context, event, _eventController.startEvent),
+          ),
+        if (event.state == EventState.ongoing)
+          IconButton(
+            icon: const Icon(Icons.stop),
+            onPressed: () =>
+                _confirmAction(context, event, _eventController.endEvent),
+          ),
         IconButton(
           icon: const Icon(Icons.edit),
           onPressed: () => _navigateToEditScreen(context, event),
@@ -55,6 +69,39 @@ class EventsList extends StatelessWidget {
           onPressed: () => _confirmDeletion(context, event),
         ),
       ],
+    );
+  }
+
+  void _confirmAction(
+    BuildContext context,
+    Event event,
+    Function(Event) action,
+  ) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(event.state == EventState.pending
+              ? "Iniciar Evento"
+              : "Finalizar Evento"),
+          content: Text(event.state == EventState.pending
+              ? "¿Quieres iniciar este evento?"
+              : "¿Quieres finalizar este evento?"),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("Cancelar"),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            TextButton(
+              child: const Text("Confirmar"),
+              onPressed: () async {
+                await action(event);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
