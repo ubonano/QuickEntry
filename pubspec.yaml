@@ -41,6 +41,7 @@ dependencies:
   intl:
   get_it:
   rxdart:
+  url_strategy:
 
 dev_dependencies:
   flutter_test:

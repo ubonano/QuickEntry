@@ -47,6 +47,10 @@ class EventController {
     }
   }
 
+  Future<Event> getEventById(String eventId) async {
+    return await _eventRepository.getEventById(eventId);
+  }
+
   Future<void> createEvent(Event event) async {
     await _eventRepository.createEvent(event);
   }
