@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:get/get.dart';
 import '../models/event.dart';
 import '../utils/event_state_enum.dart';
 
-class EventRepository {
+class EventRepository extends GetxService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<void> createEvent(Event event) async {
@@ -19,15 +20,14 @@ class EventRepository {
         .map((snapshot) => _mapSnapshotToEvents(snapshot));
   }
 
-  Future<Event> getEventById(String eventId) async {
+  Future<Event?> getEventById(String eventId) async {
     DocumentSnapshot<Map<String, dynamic>> docSnapshot =
         await _firestore.collection('events').doc(eventId).get();
 
     if (docSnapshot.exists) {
       return Event.fromMap(docSnapshot.data()!, docSnapshot.id);
-    } else {
-      throw Exception('Evento no encontrado');
     }
+    return null; // Retorna null si el evento no se encuentra
   }
 
   Future<void> updateEvent(String eventId, Event updatedEvent) async {

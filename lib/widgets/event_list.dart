@@ -1,31 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-
-import '../config/get_it_setup.dart';
+import 'package:quick_entry/views/event_edit_screen.dart';
 import '../controllers/event_controller.dart';
 import '../models/event.dart';
 import '../utils/event_state_enum.dart';
-import '../views/event_detail_screen.dart';
-import '../views/event_edit_screen.dart';
 
 class EventsList extends StatelessWidget {
   final List<Event> events;
-  final EventController _eventController = getIt<EventController>();
 
-  EventsList({super.key, required this.events});
+  const EventsList({super.key, required this.events});
 
   @override
   Widget build(BuildContext context) {
+    final EventController eventController = Get.find<EventController>();
+
     return ListView.builder(
       itemCount: events.length,
       itemBuilder: (context, index) {
         final event = events[index];
-        return _buildEventTile(context, event);
+        return _buildEventTile(context, event, eventController);
       },
     );
   }
 
-  ListTile _buildEventTile(BuildContext context, Event event) {
+  ListTile _buildEventTile(
+      BuildContext context, Event event, EventController eventController) {
     final formattedStartDateTime = _formatDateTime(event.startDateTime);
     final formattedEndDateTime = _formatDateTime(event.endDateTime);
 
@@ -41,21 +41,13 @@ class EventsList extends StatelessWidget {
           Text('Estado: ${event.state.value}'),
         ],
       ),
-      trailing: _buildTrailingIcons(context, event),
-      onTap: () => _navigateToEventDetailsScreen(context, event.id),
+      trailing: _buildTrailingIcons(context, event, eventController),
+      onTap: () => Get.toNamed('/event/${event.id}'),
     );
   }
 
-  //TODO ver de modificar
-  void _navigateToEventDetailsScreen(BuildContext context, String eventId) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => EventDetailsScreen(eventId: eventId),
-      ),
-    );
-  }
-
-  Row _buildTrailingIcons(BuildContext context, Event event) {
+  Row _buildTrailingIcons(
+      BuildContext context, Event event, EventController eventController) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -63,31 +55,28 @@ class EventsList extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.play_arrow),
             onPressed: () =>
-                _confirmAction(context, event, _eventController.startEvent),
+                _confirmAction(context, event, eventController.startEvent),
           ),
         if (event.state == EventState.ongoing)
           IconButton(
             icon: const Icon(Icons.stop),
             onPressed: () =>
-                _confirmAction(context, event, _eventController.endEvent),
+                _confirmAction(context, event, eventController.endEvent),
           ),
         IconButton(
           icon: const Icon(Icons.edit),
-          onPressed: () => _navigateToEditScreen(context, event),
+          onPressed: () => Get.to(EventEditScreen(event: event)),
         ),
         IconButton(
           icon: const Icon(Icons.delete),
-          onPressed: () => _confirmDeletion(context, event),
+          onPressed: () => _confirmDeletion(context, event, eventController),
         ),
       ],
     );
   }
 
   void _confirmAction(
-    BuildContext context,
-    Event event,
-    Function(Event) action,
-  ) {
+      BuildContext context, Event event, Function(Event) action) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -101,13 +90,13 @@ class EventsList extends StatelessWidget {
           actions: <Widget>[
             TextButton(
               child: const Text("Cancelar"),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Get.back(),
             ),
             TextButton(
               child: const Text("Confirmar"),
               onPressed: () async {
                 await action(event);
-                Navigator.of(context).pop();
+                Get.back();
               },
             ),
           ],
@@ -121,13 +110,8 @@ class EventsList extends StatelessWidget {
         .format(dateTime);
   }
 
-  void _navigateToEditScreen(BuildContext context, Event event) {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (context) => EventEditScreen(event: event)),
-    );
-  }
-
-  void _confirmDeletion(BuildContext context, Event event) {
+  void _confirmDeletion(
+      BuildContext context, Event event, EventController eventController) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -138,13 +122,13 @@ class EventsList extends StatelessWidget {
           actions: <Widget>[
             TextButton(
               child: const Text("Cancelar"),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Get.back(),
             ),
             TextButton(
               child: const Text("Eliminar"),
-              onPressed: () {
-                _eventController.deleteEvent(event.id);
-                Navigator.of(context).pop();
+              onPressed: () async {
+                await eventController.deleteEvent(event.id);
+                Get.back();
               },
             ),
           ],

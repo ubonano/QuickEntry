@@ -1,37 +1,28 @@
 import 'package:flutter/material.dart';
-import '../config/get_it_setup.dart';
+import 'package:get/get.dart';
 import '../controllers/event_controller.dart';
-import '../models/event.dart';
 import '../widgets/event_list.dart';
-import '../widgets/generic_stream_builder.dart';
 import 'event_create_screen.dart';
 
-class EventsScreen extends StatefulWidget {
+class EventsScreen extends StatelessWidget {
   const EventsScreen({super.key});
 
   @override
-  _EventsScreenState createState() => _EventsScreenState();
-}
-
-class _EventsScreenState extends State<EventsScreen> {
-  final EventController _eventController = getIt<EventController>();
-
-  @override
   Widget build(BuildContext context) {
+    final eventController = Get.find<EventController>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Eventos'),
       ),
-      body: GenericStreamBuilder<List<Event>>(
-        stream: _eventController.pendingAndOngoingEventsStream,
-        builder: (context, snapshot) => EventsList(events: snapshot.data!),
-        errorMessage: 'Error al cargar los eventos.',
-        emptyMessage: 'No hay eventos disponibles.',
-      ),
+      body: Obx(() {
+        if (eventController.pendingAndOngoingEvents.isEmpty) {
+          return const Center(child: Text('No hay eventos disponibles.'));
+        }
+        return EventsList(events: eventController.pendingAndOngoingEvents);
+      }),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => const EventCreateScreen()),
-        ),
+        onPressed: () => Get.to(() => EventCreateScreen()),
         child: const Icon(Icons.add),
       ),
     );

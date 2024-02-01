@@ -1,26 +1,23 @@
-import 'package:rxdart/rxdart.dart';
-import '../config/get_it_setup.dart';
+import 'package:get/get.dart';
 import '../models/event.dart';
 import '../repositories/event_repository.dart';
 import '../utils/event_state_enum.dart';
 
-class EventController {
-  final EventRepository _eventRepository = getIt<EventRepository>();
-  final BehaviorSubject<List<Event>> _combinedEventsSubject =
-      BehaviorSubject<List<Event>>();
+class EventController extends GetxController {
+  final EventRepository _eventRepository = Get.find<EventRepository>();
+  final RxList<Event> pendingAndOngoingEvents = <Event>[].obs;
 
-  EventController() {
+  @override
+  void onInit() {
+    super.onInit();
     _initPendingAndOngoingEventsStream();
   }
 
   void _initPendingAndOngoingEventsStream() {
     _eventRepository.getPendingAndOngoingEventsStream().listen((events) {
-      _combinedEventsSubject.add(events);
+      pendingAndOngoingEvents.assignAll(events);
     });
   }
-
-  Stream<List<Event>> get pendingAndOngoingEventsStream =>
-      _combinedEventsSubject.stream;
 
   Future<void> startEvent(Event event) async {
     if (event.state == EventState.pending) {
@@ -41,13 +38,13 @@ class EventController {
   }
 
   Future<void> updateEvent(String eventId, Event updatedEvent) async {
-    Event currentEvent = await _eventRepository.getEventById(eventId);
-    if (currentEvent.state == EventState.pending) {
+    Event? currentEvent = await _eventRepository.getEventById(eventId);
+    if (currentEvent?.state == EventState.pending) {
       await _eventRepository.updateEvent(eventId, updatedEvent);
     }
   }
 
-  Future<Event> getEventById(String eventId) async {
+  Future<Event?> getEventById(String eventId) async {
     return await _eventRepository.getEventById(eventId);
   }
 
@@ -57,9 +54,5 @@ class EventController {
 
   Future<void> deleteEvent(String eventId) async {
     await _eventRepository.deleteEvent(eventId);
-  }
-
-  void dispose() {
-    _combinedEventsSubject.close();
   }
 }

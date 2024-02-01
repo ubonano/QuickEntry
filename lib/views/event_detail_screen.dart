@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import '../config/get_it_setup.dart';
 import '../controllers/event_controller.dart';
 import '../models/event.dart';
 import '../utils/event_state_enum.dart';
 
-class EventDetailsScreen extends StatefulWidget {
+class EventDetailsScreen extends StatelessWidget {
   final String eventId;
   final bool showBackButton;
 
@@ -13,37 +13,16 @@ class EventDetailsScreen extends StatefulWidget {
       {super.key, required this.eventId, this.showBackButton = true});
 
   @override
-  _EventDetailsScreenState createState() => _EventDetailsScreenState();
-}
-
-class _EventDetailsScreenState extends State<EventDetailsScreen> {
-  late Future<Event?> _eventFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _eventFuture = _loadEvent(widget.eventId);
-  }
-
-  Future<Event?> _loadEvent(String eventId) async {
-    try {
-      final EventController eventController = getIt<EventController>();
-      return await eventController.getEventById(eventId);
-    } catch (e) {
-      // Manejo de errores o log
-      return null;
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final EventController eventController = Get.find<EventController>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Detalles del Evento'),
-        automaticallyImplyLeading: widget.showBackButton,
+        automaticallyImplyLeading: showBackButton,
       ),
       body: FutureBuilder<Event?>(
-        future: _eventFuture,
+        future: eventController.getEventById(eventId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());

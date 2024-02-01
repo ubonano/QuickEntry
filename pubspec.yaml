@@ -39,7 +39,6 @@ dependencies:
   firebase_core:
   cloud_firestore:
   intl:
-  get_it:
   rxdart:
   url_strategy:
   get: ^4.6.6
