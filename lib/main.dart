@@ -5,8 +5,7 @@ import 'package:url_strategy/url_strategy.dart';
 import 'config/firebase_options.dart';
 import 'config/get_it_setup.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'views/event_detail_screen.dart';
-import 'views/event_list_screen.dart';
+import 'config/router.dart';
 
 void main() async {
   await Firebase.initializeApp(
@@ -35,35 +34,12 @@ class QuickEntryApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    final goRouter = AppRouter.createRouter();
+
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'QuickEntry',
-      routes: {
-        '/': (context) => EventsScreen(),
-        '/event': (context) => EventDetailsScreen(eventId: ''),
-      },
-      onGenerateRoute: (RouteSettings settings) {
-        Uri uri = Uri.parse(settings.name ?? '/');
-
-        // Verifica si el primer segmento es 'event'
-        if (uri.pathSegments.length > 1 && uri.pathSegments.first == 'event') {
-          String eventId = uri.pathSegments[1];
-
-          return MaterialPageRoute(
-            builder: (context) =>
-                EventDetailsScreen(eventId: eventId, showBackButton: false),
-          );
-        }
-
-        switch (uri.path) {
-          case '/':
-            return MaterialPageRoute(builder: (context) => EventsScreen());
-          // Otros casos de rutas fijas
-          default:
-            // Ruta no encontrada
-            return MaterialPageRoute(builder: (context) => EventsScreen());
-        }
-      },
+      routerConfig: goRouter,
     );
   }
 }

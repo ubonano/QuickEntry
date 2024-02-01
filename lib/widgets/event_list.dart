@@ -5,6 +5,7 @@ import '../config/get_it_setup.dart';
 import '../controllers/event_controller.dart';
 import '../models/event.dart';
 import '../utils/event_state_enum.dart';
+import '../views/event_detail_screen.dart';
 import '../views/event_edit_screen.dart';
 
 class EventsList extends StatelessWidget {
@@ -41,6 +42,16 @@ class EventsList extends StatelessWidget {
         ],
       ),
       trailing: _buildTrailingIcons(context, event),
+      onTap: () => _navigateToEventDetailsScreen(context, event.id),
+    );
+  }
+
+  //TODO ver de modificar
+  void _navigateToEventDetailsScreen(BuildContext context, String eventId) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => EventDetailsScreen(eventId: eventId),
+      ),
     );
   }
 
