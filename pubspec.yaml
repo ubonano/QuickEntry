@@ -42,6 +42,7 @@ dependencies:
   get_it:
   rxdart:
   url_strategy:
+  go_router: ^13.1.0
 
 dev_dependencies:
   flutter_test:
